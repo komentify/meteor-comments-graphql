@@ -15,7 +15,13 @@ const fieldFromRoot = field => root => root[field]
  *
  * @see https://github.com/komentify/meteor-comments-ui
  */
-export const wrapTypeDefsAndResolvers = ({ resolvers = {}, typeDefs = [] }) => {
+export const wrapTypeDefsAndResolvers = (opts) => {
+  let {
+    resolvers = {},
+    typeDefs = [],
+    getUserId = (context) => context.userId,
+  } = opts
+
   if (!Array.isArray(typeDefs)) typeDefs = [typeDefs]
 
   return {
@@ -39,32 +45,28 @@ export const wrapTypeDefsAndResolvers = ({ resolvers = {}, typeDefs = [] }) => {
       },
       Query: {
         ...(resolvers.Query || {}),
-        getComment(root, args, context) {
+        getComment(_, args, context) {
           const { id } = args
           check(id, String)
 
-          return CommentsCollection.findOnePublic(id)
+          return CommentsCollection.findOnePublic(id, getUserId(context))
         },
-        listComments(root, args, context) {
+        listComments(_, args, context) {
           const { referenceId, limit, skip } = args
           check(referenceId, String)
 
-          const userId = null
-
           return CommentsCollection
-            .findPublic({ referenceId }, userId, { limit, skip })
+            .findPublic({ referenceId }, getUserId(context), { limit, skip })
             .fetch()
         },
-        countComments(root, args, context) {
+        countComments(_, args, context) {
           const { referenceId } = args
           check(referenceId, String)
 
-          const userId = null
-
           return CommentsCollection
-            .findPublic({ referenceId }, userId)
+            .findPublic({ referenceId }, getUserId(context))
             .count()
-        }
+        },
       },
       Mutation: {
         ...(resolvers.Mutation || {}),

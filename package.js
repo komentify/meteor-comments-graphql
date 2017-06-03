@@ -12,7 +12,6 @@ Package.onUse(function(api) {
     'check',
     'ecmascript',
     'arkham:comments-ui@1.4.1',
-    'apollo@0.9.1',
   ], 'server')
 
   api.mainModule('./graphql.js', 'server')
