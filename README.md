@@ -21,5 +21,5 @@ createApolloServer({ schema, graphiql: true })
 First, install [apollo for meteor](http://dev.apollodata.com/core/meteor.html) and then run
 
 ```bash
-meteor add arkham:comments-graphql
+meteor add komentify:comments-graphql
 ```
