@@ -2,8 +2,6 @@
 
 Add support for GraphQL to [comments-ui](https://github.com/komentify/meteor-comments-ui).
 
-Work in progress
-
 ```js
 import { wrapTypeDefsAndResolvers } from 'meteor/komentify:comments-graphql'
 import { createApolloServer } from 'meteor/apollo'
@@ -16,4 +14,12 @@ const schema = makeExecutableSchema(
 )
 
 createApolloServer({ schema, graphiql: true })
+```
+
+### How to install
+
+First, install [apollo for meteor](http://dev.apollodata.com/core/meteor.html) and then run
+
+```bash
+meteor add arkham:comments-graphql
 ```
