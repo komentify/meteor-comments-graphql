@@ -14,6 +14,12 @@ input CommentSortingInput {
   direction: Int
 }
 
+# Anonymous user data structure
+input CommentAnonData {
+  id: String!
+  salt: String!
+}
+
 # Represents **comment media**
 # such as a youtube video, image link, video link etc.
 type CommentMedia {
@@ -74,7 +80,11 @@ extend type Query {
 }
 
 extend type Mutation {
-  addComment: Comment
-  editComment: Comment
+  addComment(referenceId: String! content: String! anonData: CommentAnonData): Comment
+  editComment(id: String! content: String! anonData: CommentAnonData): Comment
+  removeComment(id: String! anonData: CommentAnonData): Comment
+  likeComment(id: String! anonData: CommentAnonData): Comment
+  dislikeComment(id: String! anonData: CommentAnonData): Comment
+  starComment(id: String! starsCount: Int anonData: CommentAnonData): Comment
 }
 `

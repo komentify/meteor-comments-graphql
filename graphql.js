@@ -1,14 +1,18 @@
 import { check, Match } from 'meteor/check'
 import { Meteor } from 'meteor/meteor'
-import userService from 'meteor/arkham:comments-ui/lib/services/user'
-import commentService from 'meteor/arkham:comments-ui/lib/services/comment'
 
 import { commentTypeDef } from './commentTypeDef'
+import { CommentUserResolver, getCommentResolver } from './commentResolvers'
 
 const CommentsCollection = Comments.getCollection()
 
-const rootIdTransform = root => fieldFromRoot('_id')(root)
-const fieldFromRoot = field => root => root[field]
+const transformAnonData = data => data ? { _id: data.id, salt: data.salt } : data
+
+const callCollectionMethod = (method, args, paramsArray, userId) => CommentsCollection[method](
+  ...paramsArray.map(key => args[key]),
+  userId,
+  transformAnonData(args.anonData),
+)
 
 /**
  * Generate type definitions and resolvers for the comments-ui pkg.
@@ -31,18 +35,8 @@ export const wrapTypeDefsAndResolvers = (opts) => {
     ],
     resolvers: {
       ...resolvers,
-
-      CommentUser: {
-        id: rootIdTransform,
-        comments: root => Comments.getCollection().findPublic({ userId: root._id }).fetch(),
-      },
-      Comment: {
-        id: rootIdTransform,
-        replies: root => commentService.filterOutNotApprovedReplies(root.replies, null),
-        isReply: root => !!fieldFromRoot('replyId')(root),
-        user: (root) => userService.getUserById(root.userId),
-        media: ({ media }) => (Object.keys(media).length === 0 ? null : media),
-      },
+      CommentUser: CommentUserResolver,
+      Comment: getCommentResolver(getUserId),
       Query: {
         ...(resolvers.Query || {}),
         getComment(_, args, context) {
@@ -70,6 +64,36 @@ export const wrapTypeDefsAndResolvers = (opts) => {
       },
       Mutation: {
         ...(resolvers.Mutation || {}),
+        addComment(_, args, context) {
+          return callCollectionMethod('addComment', args, [
+            'referenceId',
+            'content',
+          ], getUserId(context))
+        },
+        editComment(_, args, context) {
+          return callCollectionMethod('editComment', args, [
+            'id',
+            'content',
+          ], getUserId(context))
+        },
+        removeComment(_, args, context) {
+          return callCollectionMethod('removeComment', args, ['id'], getUserId(context))
+        },
+        likeComment: async (_, args, context) => {
+          await callCollectionMethod('likeComment', args, ['id'], getUserId(context))
+          return CommentsCollection.findOnePublic(args.id, getUserId(context))
+        },
+        dislikeComment: async (_, args, context) => {
+          await callCollectionMethod('dislikeComment', args, ['id'], getUserId(context))
+          return CommentsCollection.findOnePublic(args.id, getUserId(context))
+        },
+        starComment: async (_, args, context) => {
+          await callCollectionMethod('starComment', args, [
+            'id',
+            'starsCount',
+          ], getUserId(context))
+          return CommentsCollection.findOnePublic(args.id, getUserId(context))
+        },
       },
     },
   }
