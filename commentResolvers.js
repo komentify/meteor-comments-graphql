@@ -10,11 +10,12 @@ export const CommentUserResolver = {
 }
 
 export const getCommentResolver = (getUserId) => ({
-  id: rootIdTransform,
+  id: root => (root.replyId ? root.replyId : root._id),
+  rootId: root => root.replyId ? root._id : null,
   replies: (root, args, context) => commentService.filterOutNotApprovedReplies(
     root.replies,
     getUserId(context),
-  ).map(reply => ({ ...reply, _id: reply.replyId, rootId: root._id })),
+  ),
   isReply: root => !!fieldFromRoot('replyId')(root),
   user: (root) => userService.getUserById(root.userId),
   media: ({ media }) => (Object.keys(media).length === 0 ? null : media),

@@ -80,11 +80,20 @@ extend type Query {
 }
 
 extend type Mutation {
+  # Add a comment to a topic identified by the referenceId
   addComment(referenceId: String! content: String! anonData: CommentAnonData): Comment
   editComment(id: String! content: String! anonData: CommentAnonData): Comment
   removeComment(id: String! anonData: CommentAnonData): Comment
   likeComment(id: String! anonData: CommentAnonData): Comment
   dislikeComment(id: String! anonData: CommentAnonData): Comment
   starComment(id: String! starsCount: Int anonData: CommentAnonData): Comment
+  
+  # Add a reply to a comment or reply (if to a reply replyId has to be additionally provided)
+  addReply(rootId: String! replyId: String content: String! anonData: CommentAnonData): Comment
+  editReply(rootId: String! replyId: String content: String! anonData: CommentAnonData): Comment
+  removeReply(rootId: String! replyId: String anonData: CommentAnonData): Comment
+  likeReply(rootId: String! replyId: String anonData: CommentAnonData): Comment
+  dislikeReply(rootId: String! replyId: String anonData: CommentAnonData): Comment
+  starReply(rootId: String! replyId: String starsCount: Int anonData: CommentAnonData): Comment
 }
 `

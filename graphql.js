@@ -88,11 +88,38 @@ export const wrapTypeDefsAndResolvers = (opts) => {
           return CommentsCollection.findOnePublic(args.id, getUserId(context))
         },
         starComment: async (_, args, context) => {
-          await callCollectionMethod('starComment', args, [
-            'id',
+          await callCollectionMethod('starComment', args, ['id', 'starsCount'], getUserId(context))
+          return CommentsCollection.findOnePublic(args.id, getUserId(context))
+        },
+        addReply(_, args, context) {
+          return callCollectionMethod('addReply', args, [
+            'rootId',
+            'replyId',
+            'content',
+          ], getUserId(context))
+        },
+        editReply(_, args, context) {
+          return callCollectionMethod('editReply', args, [
+            'rootId',
+            'replyId',
+            'content',
+          ], getUserId(context))
+        },
+        removeReply(_, args, context) {
+          return callCollectionMethod('removeReply', args, ['rootId', 'replyId'], getUserId(context))
+        },
+        likeReply(_, args, context) {
+          return callCollectionMethod('likeReply', args, ['rootId', 'replyId'], getUserId(context))
+        },
+        dislikeReply(_, args, context) {
+          return callCollectionMethod('dislikeReply', args, ['rootId', 'replyId'], getUserId(context))
+        },
+        starReply(_, args, context) {
+          return callCollectionMethod('starReply', args, [
+            'rootId',
+            'replyId',
             'starsCount',
           ], getUserId(context))
-          return CommentsCollection.findOnePublic(args.id, getUserId(context))
         },
       },
     },
